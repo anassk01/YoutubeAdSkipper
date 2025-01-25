@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         YouTube Ad Skipper
-// @version      1.7
-// @description  Two-step precise timestamp skip
+// @version      1.5
+// @description  Simple ad skip button for YouTube
 // @match        *://*.youtube.com/*
 // @grant        GM_addStyle
 // @run-at       document-end
+// @license      MIT
+// @author       anassk
 // ==/UserScript==
-
+// 
 (function() {
     'use strict';
     
