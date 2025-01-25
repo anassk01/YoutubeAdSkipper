@@ -1,16 +1,15 @@
 // ==UserScript==
 // @name         YouTube Ad Skipper
-// @version      1.4
-// @description  Simple ad skip button for YouTube
+// @version      1.7
+// @description  Two-step precise timestamp skip
 // @match        *://*.youtube.com/*
 // @grant        GM_addStyle
 // @run-at       document-end
-// @license      MIT
-// @author       anassk
 // ==/UserScript==
+
 (function() {
     'use strict';
-
+    
     const skipButton = document.createElement('button');
     skipButton.innerHTML = '>';
     skipButton.style.cssText = `
@@ -27,14 +26,34 @@
         font-size: 14px;
     `;
 
+    let storedTime = 0;
+
     const reloadVideo = () => {
         const player = document.querySelector('video');
         const videoId = new URLSearchParams(window.location.search).get('v');
+        
         if (player && videoId) {
-            const videoTime = player.currentTime;
+            // Step 1: Store the exact time
+            storedTime = player.currentTime;
+            
+            // Step 2: Reload video
             const moviePlayer = document.getElementById('movie_player');
             if (moviePlayer) {
-                moviePlayer.loadVideoById(videoId, videoTime);
+                moviePlayer.loadVideoById(videoId);
+                
+                // Step 3: Set exact time after a brief moment
+                const setStoredTime = () => {
+                    moviePlayer.seekTo(storedTime, true);
+                    player.currentTime = storedTime;
+                };
+
+                // Wait for player to be ready
+                const checkAndSetTime = setInterval(() => {
+                    if (player.readyState >= 3) { // HAVE_FUTURE_DATA or better
+                        setStoredTime();
+                        clearInterval(checkAndSetTime);
+                    }
+                }, 50);
             }
         }
     };
